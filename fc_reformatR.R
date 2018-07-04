@@ -24,7 +24,6 @@ readFC <- function(fileName){
   lightCond <- c()
   protConc <- c()
   sampleType <- c()
-  aavType <- c()
   
   for (i in sampleName){
     
@@ -34,11 +33,6 @@ readFC <- function(fileName){
       
       conc <- 0
       type <- "blank"
-      
-    }else if (grepl("aav", i, fixed=TRUE)){
-      
-      conc <- 0
-      type <- "AAV"
       
     }else{
       
@@ -65,20 +59,6 @@ readFC <- function(fileName){
     }
       
     lightCond <- append(lightCond, wl)
-  
-  ## Extract AAV type
-    
-    if (grepl("VP2-PIF6", i, fixed=TRUE)){
-      aav <- "VP2-PIF6"
-    }else if (grepl("pMH301", i, fixed=TRUE)){
-      aav <- "pMH301"
-    }else{
-      aav <- NA
-    } 
-    
-    aavType <- append(aavType, aav)
-    
-  }
   
   ## Create vector with FL1 median
   
