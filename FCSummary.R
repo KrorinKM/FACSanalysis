@@ -14,6 +14,8 @@ FCsummary <- function(fileName){
   FL1SD <- c()
   FL6Mean <- c()
   FL6SD <- c()
+  GFPMean <- c()
+  GFPSD <- c()
   
   df2 <- split(df, df$LightCond)
   
@@ -34,6 +36,8 @@ FCsummary <- function(fileName){
         FL1SD <- append(FL1SD, toString(round(sd(k$FL1Median), digits=2)))
         FL6Mean <- append(FL6Mean, toString(round(mean(k$FL6Median), digits=2)))
         FL6SD <- append(FL6SD, toString(round(sd(k$FL6Median), digits=2)))
+        GFPMean <- append(GFPMean, toString(round(mean(k$GFP_percentage), digits=2)))
+        GFPSD <- append(GFPSD, toString(round(sd(k$GFP_percentage), digits=2)))
         
       }
     }
@@ -42,7 +46,7 @@ FCsummary <- function(fileName){
   ## Put dataframe together
   
   df_final <- data.frame(LightCond=lightCond, ProteinConc=protConc, SampleType=sampleType, FL1Mean=FL1Mean, 
-                         FL1SD=FL1SD, FL6Mean=FL6Mean, FL6SD=FL6SD, stringsAsFactors = FALSE)
+                         FL1SD=FL1SD, FL6Mean=FL6Mean, FL6SD=FL6SD, GFPMean=GFPMean, GFPSD=GFPSD, stringsAsFactors = FALSE)
   
   ## Write output file
   
