@@ -3,6 +3,8 @@ readFC <- function(fileName){
   ## Import packages
   
   library(stringr)
+  library(plyr)
+  library(dplyr)
   
   ## Read csv data
   
@@ -17,6 +19,7 @@ readFC <- function(fileName){
   FL1FirstRow <- 5      ### Row at which FL1 Median appears for the first time
   FL6FirstRow <- 9      ### Row at which FL6 Median appears for the first time
   GFPFirstRow <- 6      ### Row at which the percentage of GFP+ cells appears for the first time
+  FL3FirstRow <- 8
   
   ## Create vector with sample names
   
@@ -35,15 +38,10 @@ readFC <- function(fileName){
     
   ## Extract protein concentration and sample type
     
-    if (grepl("cells", i, fixed=TRUE) | grepl("blank", i, fixed=TRUE)){
+    if (grepl("blank", i, fixed=TRUE)){
       
       conc <- 0
       sample <- "blank"
-      
-    }else if (grepl("aav", i, fixed=TRUE)){
-      
-      conc <- 0
-      sample <- "AAV"
       
     }else{
       
@@ -53,20 +51,9 @@ readFC <- function(fileName){
       conc <- str_sub(conc, str_length(conc), str_length(conc))
       
       sample <- nameSplit[[1]][3]
-      
-      ## Extract AAV type
+      sample <- strsplit(sample, " ")[[1]][1]
       
     }
-    
-    if (sample == 2 | sample == 4 | sample == "AAV"){
-      
-      if (grepl("VP2-PIF6", i, fixed=TRUE)){
-        sample <- paste(sample, "VP2-PIF6")
-        
-      }else if (grepl("pMH301", i, fixed=TRUE)){
-        sample <- paste(sample, "pMH301")
-      }
-    } 
     
     protConc <- append(protConc, conc)
     sampleType <- append(sampleType, sample)
@@ -92,6 +79,13 @@ readFC <- function(fileName){
     FL1Median <- append(FL1Median, as.numeric(df[i,4]))
   }
 
+  ## Create vector with FL3 median
+  
+  FL3Median <- c()
+  for (i in seq(from = FL3FirstRow, to = dim(df)[1], by = rowsPerSample)){
+    FL3Median <- append(FL3Median, as.numeric(df[i,4]))
+  }
+  
   ## Create vector with FL6 median
   
   FL6Median <- c()
@@ -102,28 +96,36 @@ readFC <- function(fileName){
   ## Create vector with % GFP+
   
   GFPperc <- c()
-  for (i in seq(from = GFPFirstRow, to = dim(df)[1], by = rowsPerSample)){
-    GFPperc <- append(GFPperc, as.numeric(df[i,3]))
+  
+  if (GFPFirstRow != 0){
+    
+    for (i in seq(from = GFPFirstRow, to = dim(df)[1], by = rowsPerSample)){
+      GFPperc <- append(GFPperc, as.numeric(df[i,3]))
+    }
+  
+  }else{
+    
+    GFPperc <- rep(NA, length(sampleName))
+    
   }
 
   ## Create dataframe and save it as csv
   
   df_final <- data.frame(Sample = sampleName, ProteinConc = protConc, SampleType = sampleType, 
-                  LightCond = lightCond, FL1Median = FL1Median, FL6Median = FL6Median, 
+                  LightCond = lightCond, FL1Median = FL1Median, FL3Median, FL6Median = FL6Median, 
                   GFP_percentage = GFPperc, stringsAsFactors = FALSE)
   
   ## Remove rows with NAs
   
-  df_final <- df_final[complete.cases(df_final[ , 5:7]),]
+  df_final <- df_final[complete.cases(df_final[ , 5:6]),]
   
   ## Sort dataframe
   
-  arrange(df_final, LightCond, ProteinConc)
+  df_final <- arrange(df_final, Sample)
   
   ## Write output file
   
-  write.table(df_final, file=paste(substr(fileName, 1, nchar(fileName)-4), "_re-formated.csv", sep=""), sep=";", 
-              dec=".", col.names=NA) 
+  write.table(df_final, file=paste(substr(fileName, 1, nchar(fileName)-4), "_re-formated.csv", sep=""), sep=";", dec=".", col.names=NA) 
   
   ## Return value
   
